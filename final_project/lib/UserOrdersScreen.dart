@@ -27,7 +27,7 @@ class UserOrdersScreen extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    "Name: ${user['name']}\nAddress: ${user['address']}\nPhone: ${user['phoneNumber']}",
+                    "Name: ${user['name']}\nAddress: ${user['address']}\nPhone: ${user['phone']}",
                     style: TextStyle(fontSize: 16),
                   ),
                 ),
