@@ -1,4 +1,5 @@
 import 'package:final_project/pages/homepage.dart';
+import 'package:final_project/pages/signin.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -32,14 +33,14 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
     // Navigate to HomePage after animation ends
     Future.delayed(const Duration(seconds: 4), () {
-      _navigateToHomePage();
+      _navigateToSigninPage();
     });
   }
 
-  void _navigateToHomePage() {
+  void _navigateToSigninPage() {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => const HomePage()),
+      MaterialPageRoute(builder: (context) => SignInScreen()),
     );
   }
 
@@ -52,7 +53,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.green, // Change the background color as needed
+      backgroundColor: Colors.grey, // Change the background color as needed
       body: Stack(
         children: [
           // Splash Screen Content
@@ -91,10 +92,10 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             top: 40,
             right: 20,
             child: ElevatedButton(
-              onPressed: _navigateToHomePage,
+              onPressed: _navigateToSigninPage,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
-                foregroundColor: Colors.green,
+                foregroundColor: Colors.grey,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
