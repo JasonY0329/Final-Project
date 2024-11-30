@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import '../validators.dart'; // 引入验证器文件
+import '../validators.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+// View for reset password
 class ForgotPasswordScreen extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
 
@@ -12,7 +13,7 @@ class ForgotPasswordScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(''), // 清空默认标题
+        title: const Text(''), 
         flexibleSpace: const Center(
           child: Padding(
             padding: EdgeInsets.only(top: 30.0),
@@ -39,7 +40,6 @@ class ForgotPasswordScreen extends StatelessWidget {
               onPressed: () async {
                 final email = emailController.text.trim();
                 if (!isValidEmail(email)) {
-                  // 显示错误提示
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Invalid email format')),
                   );

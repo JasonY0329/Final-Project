@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../validators.dart'; // 引入验证器文件
+import '../validators.dart'; 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-
+//View for register
 class SignUpScreen extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -14,7 +14,7 @@ class SignUpScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(''), // 清空默认标题
+        title: const Text(''), 
         flexibleSpace: const Center(
           child: Padding(
             padding: EdgeInsets.only(top: 30.0),
@@ -46,7 +46,7 @@ class SignUpScreen extends StatelessWidget {
               onPressed: () async {
                 final email = emailController.text.trim();
                 if (!isValidEmail(email)) {
-                  // 显示错误提示
+              
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Invalid email format')),
                   );

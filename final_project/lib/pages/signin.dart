@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'signup.dart';
 import 'homepage.dart';
 import 'password.dart';
-import '../validators.dart'; // 引入验证器文件
+import '../validators.dart'; 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+//View for login
 class SignInScreen extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -14,7 +15,7 @@ class SignInScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final buttonTextColor = Theme.of(context).primaryColor; // 定义文字颜色
+    final buttonTextColor = Theme.of(context).primaryColor; 
 
     return Scaffold(
       appBar: AppBar(
@@ -39,7 +40,7 @@ class SignInScreen extends StatelessWidget {
               onPressed: () async {
                 final email = emailController.text.trim();
                 if (!isValidEmail(email)) {
-                  // 显示错误提示
+                 
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Invalid email format')),
                   );
@@ -55,7 +56,7 @@ class SignInScreen extends StatelessWidget {
                         const SnackBar(content: Text('Sign in successfully')));
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (context) => const HomePage()), // 替换为你的主页组件
+                          MaterialPageRoute(builder: (context) => const HomePage()),
                         );
 
                   } catch (e) {
@@ -82,7 +83,7 @@ class SignInScreen extends StatelessWidget {
                   child: Text(
                     'Forgot Password?',
                     style: TextStyle(
-                      color: buttonTextColor, // 文字为紫色
+                      color: buttonTextColor, 
                     ),
                   ),
                 ),
@@ -96,7 +97,7 @@ class SignInScreen extends StatelessWidget {
                   child: Text(
                     'No account?',
                     style: TextStyle(
-                      color: buttonTextColor, // 文字为紫色
+                      color: buttonTextColor,
                     ),
                   ),
                 ),
