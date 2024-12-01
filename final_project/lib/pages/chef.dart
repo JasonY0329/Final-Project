@@ -5,7 +5,6 @@ class ChefPage extends StatelessWidget {
 
   ChefPage({super.key, required this.chef});
 
-  // Dishes specific to each chef based on their cuisine
   final Map<String, Map<String, Map<String, dynamic>>> chefDishes = {
     'British': {
     '2-4': {
@@ -271,8 +270,8 @@ class ChefPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final chefCuisine = chef['cuisine']; // Get the chef's cuisine style
-    final packages = chefDishes[chefCuisine]; // Get specific dishes for the chef
+    final chefCuisine = chef['cuisine'];
+    final packages = chefDishes[chefCuisine];
 
     return Scaffold(
       appBar: AppBar(
@@ -283,11 +282,13 @@ class ChefPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Chef Photo and Details
             _buildChefDetails(),
             const SizedBox(height: 20),
-
-            // Package Selection
+            ElevatedButton(
+              onPressed: () => _selectDateTime(context),
+              child: const Text('Select Date and Time'),
+            ),
+            const SizedBox(height: 20),
             const Text(
               'Select a Package',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -350,6 +351,40 @@ class ChefPage extends StatelessWidget {
             style: const TextStyle(fontSize: 16),
           ),
         ],
+      ),
+    );
+  }
+
+  void _selectDateTime(BuildContext context) async {
+    DateTime? selectedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+
+    if (selectedDate == null) return;
+
+    TimeOfDay? selectedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+
+    if (selectedTime == null) return;
+
+    final DateTime selectedDateTime = DateTime(
+      selectedDate.year,
+      selectedDate.month,
+      selectedDate.day,
+      selectedTime.hour,
+      selectedTime.minute,
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Order scheduled for ${selectedDateTime.toLocal()}',
+        ),
       ),
     );
   }
