@@ -54,16 +54,44 @@ class SignUpScreen extends StatelessWidget {
                 }
                 // Sign up logic
                 try {
-                    await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                    // Create a new user
+                    final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
                       email: emailController.text.trim(),
                       password: passwordController.text.trim(),
                     );
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Sign up successfully')));
+
+                    // Get the current user
+                    final user = userCredential.user;
+
+                    if (user != null) {
+                      // Send a verification email
+                      await user.sendEmailVerification();
+
+                      // Prompt the user to check their email
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Verification email sent. Please check your email.')),
+                      );
+
+                      // Wait for the user to verify their email
+                      bool isVerified = false;
+                      while (!isVerified) {
+                        await Future.delayed(const Duration(seconds: 3));
+                        await user.reload(); // Reload user information
+                        isVerified = user.emailVerified; // Check if the email is verified
+                      }
+
+                      // If verified, display a success message
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Sign up successfully')),
+                      );
+                    }
                   } catch (e) {
+                    // Display error message
                     ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Sign up failure：${e.toString()}')));
+                      SnackBar(content: Text('Sign up failure: ${e.toString()}')),
+                    );
                   }
+
               },
               child: const Text('Sign up'),
             ),
