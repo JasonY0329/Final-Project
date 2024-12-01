@@ -1,6 +1,9 @@
+import 'package:final_project/pages/MapAddressPicker.dart';
 import 'package:final_project/pages/chef.dart';
 import 'package:final_project/pages/search.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -257,43 +260,45 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _editAddress(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        TextEditingController controller = TextEditingController();
-        controller.text = _currentAddress;
-
-        return AlertDialog(
-          title: const Text('Edit Address'),
-          content: TextField(
-            controller: controller,
-            decoration: const InputDecoration(
-              labelText: 'Enter new address',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          actions: [
-            TextButton(
-              child: const Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            ElevatedButton(
-              child: const Text('Save'),
-              onPressed: () {
-                setState(() {
-                  _currentAddress = controller.text;
-                });
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
+void _editAddress(BuildContext context) async {
+  // Ensure location permission is granted
+  LocationPermission permission = await Geolocator.checkPermission();
+  if (permission == LocationPermission.denied) {
+    permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.deniedForever) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Location permissions are permanently denied")),
+      );
+      return;
+    } else if (permission == LocationPermission.denied) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Location permissions are denied")),
+      );
+      return;
+    }
   }
+
+  // Get current location
+  Position currentPosition = await Geolocator.getCurrentPosition(
+    desiredAccuracy: LocationAccuracy.high,
+  );
+
+  LatLng initialPosition = LatLng(currentPosition.latitude, currentPosition.longitude);
+
+  // Navigate to MapAddressPicker
+  final result = await Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => MapAddressPicker(initialPosition: initialPosition),
+    ),
+  );
+
+  if (result != null) {
+    setState(() {
+      _currentAddress = result['address'];
+    });
+  }
+}
 }
 
 class RecommendedChefCard extends StatelessWidget {
