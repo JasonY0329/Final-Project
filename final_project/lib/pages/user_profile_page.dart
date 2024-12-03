@@ -2,6 +2,7 @@ import 'package:final_project/pages/MapAddressPicker.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'signin.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class UserProfilePage extends StatefulWidget {
@@ -97,7 +98,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
     );
   }
 
-    Future<void> _editAddress(BuildContext context) async {
+  Future<void> _editAddress(BuildContext context) async {
     // Initial position for the map (e.g., center at a default location)
     final initialPosition = LatLng(37.7749, -122.4194); // Replace with your default coordinates
 
@@ -119,6 +120,67 @@ class _UserProfilePageState extends State<UserProfilePage> {
       _updateUserInfo('address', result['address']);
     }
   }
+
+  void _logOut(BuildContext context) async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => SignInScreen()),
+      (route) => false, // Remove all previous routes
+    );
+  }
+  void _editPronounsField(BuildContext context) {
+  String selectedPronoun = _userPronouns.isNotEmpty &&
+          ['He', 'She', 'They'].contains(_userPronouns)
+      ? _userPronouns
+      : 'He'; // Default to 'He' if _userPronouns is empty or invalid
+
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text('Edit Pronouns'),
+        content: Form(
+          child: DropdownButtonFormField<String>(
+            value: selectedPronoun,
+            items: ['He', 'She', 'They'].map((String pronoun) {
+              return DropdownMenuItem<String>(
+                value: pronoun,
+                child: Text(pronoun),
+              );
+            }).toList(),
+            onChanged: (newValue) {
+              setState(() {
+                selectedPronoun = newValue!;
+              });
+            },
+            decoration: const InputDecoration(
+              labelText: 'Select Pronouns',
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                _userPronouns = selectedPronoun; // Update the state
+              });
+              _updateUserInfo('pronouns', selectedPronoun); // Save to Firestore
+              Navigator.pop(context); // Close the dialog
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -146,11 +208,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
               onTap: () => _editField(context, 'Name', 'name', _userName),
             ),
             ListTile(
-              title: Text('Pronouns'),
+              title: const Text('Pronouns'),
               subtitle: Text(_userPronouns),
-              trailing: Icon(Icons.edit),
-              onTap: () => _editField(context, 'Pronouns', 'pronouns', _userPronouns),
+              trailing: const Icon(Icons.edit),
+              onTap: () => _editPronounsField(context),
             ),
+
             ListTile(
               title: Text('Phone'),
               subtitle: Text(_userPhone),
@@ -169,6 +232,17 @@ class _UserProfilePageState extends State<UserProfilePage> {
               trailing: Icon(Icons.edit_location_alt),
               onTap: () => _editAddress(context), // Navigate to the MapAddressPicker
             ),
+            Spacer(), // Pushes the button to the bottom
+            Center(
+              child: ElevatedButton(
+                onPressed: () => _logOut(context),
+                child: Text('Log Out'),
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                ),
+              ),
+            ),
+
           ],
         ),
       ),
