@@ -1,6 +1,8 @@
+import 'package:final_project/pages/MapAddressPicker.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class UserProfilePage extends StatefulWidget {
   final Map<String, dynamic> userData;
@@ -95,6 +97,29 @@ class _UserProfilePageState extends State<UserProfilePage> {
     );
   }
 
+    Future<void> _editAddress(BuildContext context) async {
+    // Initial position for the map (e.g., center at a default location)
+    final initialPosition = LatLng(37.7749, -122.4194); // Replace with your default coordinates
+
+    // Navigate to the MapAddressPicker page
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MapAddressPicker(initialPosition: initialPosition),
+      ),
+    );
+
+    // If an address was selected, update the address
+    if (result != null && result['address'] != null) {
+      setState(() {
+        _userAddress = result['address'];
+      });
+
+      // Update the address in Firebase
+      _updateUserInfo('address', result['address']);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -141,8 +166,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
             ListTile(
               title: Text('Address'),
               subtitle: Text(_userAddress),
-              trailing: Icon(Icons.edit),
-              onTap: () => _editField(context, 'Address', 'address', _userAddress),
+              trailing: Icon(Icons.edit_location_alt),
+              onTap: () => _editAddress(context), // Navigate to the MapAddressPicker
             ),
           ],
         ),

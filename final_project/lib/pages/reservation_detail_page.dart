@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class ReservationDetailPage extends StatelessWidget {
@@ -10,8 +11,8 @@ class ReservationDetailPage extends StatelessWidget {
     // Safely extract fields with fallback defaults
     final chefName = reservation['chefName'] ?? 'Unknown Chef';
     final chefImage = reservation['chefPhoto'] ?? ''; // Use an empty string if no image is provided
-    final reservationDate = reservation['reservationDate'] ?? 'Unknown Date';
-    final reservationTime = reservation['reservationTime'] ?? 'Unknown Time';
+    final Timestamp reservationTimestamp = reservation['reservationDate'];
+    final DateTime reservationDateTime = reservationTimestamp.toDate();
     final address = reservation['address'] ?? 'Unknown Address';
     final dishes = reservation['selectedDishes'] ?? {};
 
@@ -49,14 +50,11 @@ class ReservationDetailPage extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'Date: $reservationDate',
+                'Date: $reservationDateTime',
                 style: const TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 8),
-              Text(
-                'Time: $reservationTime',
-                style: const TextStyle(fontSize: 16),
-              ),
+              
               const SizedBox(height: 8),
               Text(
                 'Address: $address',

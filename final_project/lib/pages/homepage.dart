@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_project/pages/MapAddressPicker.dart';
 import 'package:final_project/pages/chef.dart';
 import 'package:final_project/pages/search.dart';
@@ -20,9 +21,45 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
-  String _currentAddress = "123 Main St, SF";
+  String _currentAddress = "Loading address...";
   String _searchQuery = '';
   final String _selectedCuisine = 'All';
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserAddress();
+  }
+
+  Future<void> _fetchUserAddress() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+
+      if (user != null) {
+        final docSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+
+        if (docSnapshot.exists) {
+          final userData = docSnapshot.data();
+          if (userData != null && userData.containsKey('address')) {
+            setState(() {
+              _currentAddress = userData['address'] ?? "Address not available";
+            });
+          }
+        }
+      } else {
+        setState(() {
+          _currentAddress = "User not signed in";
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _currentAddress = "Error fetching address";
+      });
+    }
+  }
   
 
 
@@ -352,12 +389,25 @@ void _editAddress(BuildContext context) async {
   );
 
   if (result != null) {
+    String selectedAddress = result['address'];
+    LatLng selectedLocation = result['location'];
+
+    // Save to Firebase
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .update({'address': selectedAddress});
+    }
+
     setState(() {
-      _currentAddress = result['address'];
+      _currentAddress = selectedAddress;
     });
   }
 }
-}
+  
+  }
 
 class RecommendedChefCard extends StatelessWidget {
   final String name;
