@@ -21,10 +21,10 @@ class _MapAddressPickerState extends State<MapAddressPicker> {
 
   @override
   void initState() {
-    super.initState();
-    _selectedPosition = widget.initialPosition;
-    _fetchAddressFromCoordinates(_selectedPosition);
-  }
+  super.initState();
+  _selectedPosition = widget.initialPosition; // Set initial position
+  _fetchAddressFromCoordinates(_selectedPosition); // Fetch address for the initial position
+}
 
   Future<void> _fetchAddressFromCoordinates(LatLng position) async {
   if (kIsWeb) {
@@ -98,7 +98,7 @@ class _MapAddressPickerState extends State<MapAddressPicker> {
         children: [
           GoogleMap(
             initialCameraPosition: CameraPosition(
-              target: widget.initialPosition,
+              target: widget.initialPosition, 
               zoom: 15,
             ),
             onMapCreated: (GoogleMapController controller) {

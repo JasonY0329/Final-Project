@@ -4,6 +4,7 @@ import 'package:final_project/pages/chef.dart';
 import 'package:final_project/pages/search.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -356,31 +357,40 @@ class _HomePageState extends State<HomePage> {
   }
 
 void _editAddress(BuildContext context) async {
-  // Ensure location permission is granted
-  LocationPermission permission = await Geolocator.checkPermission();
-  if (permission == LocationPermission.denied) {
-    permission = await Geolocator.requestPermission();
-    if (permission == LocationPermission.deniedForever) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Location permissions are permanently denied")),
-      );
-      return;
-    } else if (permission == LocationPermission.denied) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Location permissions are denied")),
-      );
-      return;
+  final user = FirebaseAuth.instance.currentUser;
+  LatLng initialPosition;
+
+  try {
+    if (user != null) {
+      // Fetch the current user's address from Firestore
+      final docSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      if (docSnapshot.exists) {
+        final userData = docSnapshot.data();
+        if (userData != null && userData.containsKey('address')) {
+          // Use geocoding to convert the address to LatLng
+          final String currentAddress = userData['address'];
+          List<Location> locations = await locationFromAddress(currentAddress);
+          initialPosition = LatLng(locations.first.latitude, locations.first.longitude);
+        } else {
+          // Default position if no address is found
+          initialPosition = LatLng(37.7749, -122.4194); // San Francisco coordinates
+        }
+      } else {
+        initialPosition = LatLng(37.7749, -122.4194);
+      }
+    } else {
+      initialPosition = LatLng(37.7749, -122.4194);
     }
+  } catch (e) {
+    // Fallback to default position in case of an error
+    initialPosition = LatLng(37.7749, -122.4194);
   }
 
-  // Get current location
-  Position currentPosition = await Geolocator.getCurrentPosition(
-    desiredAccuracy: LocationAccuracy.high,
-  );
-
-  LatLng initialPosition = LatLng(currentPosition.latitude, currentPosition.longitude);
-
-  // Navigate to MapAddressPicker
+  // Open the MapAddressPicker with the initial position
   final result = await Navigator.push(
     context,
     MaterialPageRoute(
@@ -390,10 +400,8 @@ void _editAddress(BuildContext context) async {
 
   if (result != null) {
     String selectedAddress = result['address'];
-    LatLng selectedLocation = result['location'];
 
     // Save to Firebase
-    final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       await FirebaseFirestore.instance
           .collection('users')
@@ -401,8 +409,10 @@ void _editAddress(BuildContext context) async {
           .update({'address': selectedAddress});
     }
 
+    // Update local data
     setState(() {
       _currentAddress = selectedAddress;
+      widget.userData['address'] = selectedAddress;
     });
   }
 }

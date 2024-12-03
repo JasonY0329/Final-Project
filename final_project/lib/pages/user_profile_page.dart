@@ -203,8 +203,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
             ListTile(
               title: Text('Address'),
               subtitle: Text(_userAddress),
-              trailing: Icon(Icons.edit),
-              onTap: () => _editField(context, 'Address', 'address', _userAddress),
+              // trailing: Icon(Icons.edit),
+              // onTap: () => _editField(context, 'Address', 'address', _userAddress),
             ),
             Spacer(), // Pushes the button to the bottom
             Center(
