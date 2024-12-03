@@ -2,19 +2,21 @@ import 'package:flutter/material.dart';
 import 'firestore_helper.dart';
 
 class UserOrdersScreen extends StatelessWidget {
-  final String userId = "vwJNRr1J4YnA703zZJkz"; // Example userId
+  final String userId = "vwJNRr1J4YnA703zZJkz";
+
+  const UserOrdersScreen({super.key}); // Example userId
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("User Orders"),
+        title: const Text("User Orders"),
       ),
       body: FutureBuilder<Map<String, dynamic>>(
         future: getUserWithOrders(userId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text("Error: ${snapshot.error}"));
           } else if (snapshot.hasData) {
@@ -28,7 +30,7 @@ class UserOrdersScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
                     "Name: ${user['name']}\nAddress: ${user['address']}\nPhone: ${user['phone']}",
-                    style: TextStyle(fontSize: 16),
+                    style: const TextStyle(fontSize: 16),
                   ),
                 ),
                 Expanded(
@@ -47,7 +49,7 @@ class UserOrdersScreen extends StatelessWidget {
               ],
             );
           } else {
-            return Center(child: Text("No data available"));
+            return const Center(child: Text("No data available"));
           }
         },
       ),

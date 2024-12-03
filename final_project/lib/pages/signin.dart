@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'signup.dart';
 import 'homepage.dart';
 import 'password.dart';
-import '../validators.dart'; 
-import 'package:firebase_core/firebase_core.dart';
+import '../validators.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'user_profile_page.dart'; // Import UserProfilePage
 
-//View for login
 class SignInScreen extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -15,7 +15,7 @@ class SignInScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final buttonTextColor = Theme.of(context).primaryColor; 
+    final buttonTextColor = Theme.of(context).primaryColor;
 
     return Scaffold(
       appBar: AppBar(
@@ -39,78 +39,71 @@ class SignInScreen extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 final email = emailController.text.trim();
+                final password = passwordController.text.trim();
+
                 if (!isValidEmail(email)) {
-                 
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Invalid email format')),
                   );
                   return;
                 }
-                // Sign in logic
-                 try {
-                    final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-                        email: emailController.text.trim(),
-                        password: passwordController.text.trim(),
-                      );
-                    final user = userCredential.user;
-                    if (user != null) {
-                      // Check if the email is verified
-                      if (user.emailVerified) {
-                        // Email is verified, allow login
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Sign in successfully')),
-                        );
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => const HomePage()),
-                        );
-                      } else {
-                        // Email not verified, display warning
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'Sign in failed: Email not verified. Please check your inbox and verify your email.',
-                            ),
-                          ),
-                        );
-                      }
-                    }
-                    // await FirebaseAuth.instance.signInWithEmailAndPassword(
-                    //   email: emailController.text.trim(),
-                    //   password: passwordController.text.trim(),
-                    // );
-                    // ScaffoldMessenger.of(context).showSnackBar(
-                    //     const SnackBar(content: Text('Sign in successfully')));
-                    //     Navigator.pushReplacement(
-                    //       context,
-                    //       MaterialPageRoute(builder: (context) => const HomePage()),
-                    //     );
 
-                  } catch (e) {
+                try {
+                  // Sign in the user
+                  final userCredential = await FirebaseAuth.instance
+                      .signInWithEmailAndPassword(
+                    email: email,
+                    password: password,
+                  );
+
+                  // Fetch user information from Firestore
+                  final userDoc = await FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(userCredential.user!.uid)
+                      .get();
+
+                  if (userDoc.exists && userDoc.data() != null) {
+                    // Navigate to HomePage with user data
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => HomePage(
+                          userData: userDoc.data()!,
+                        ),
+                      ),
+                    );
+                  } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Sign in failure：${e.toString()}')));
+                      const SnackBar(content: Text('User data not found')),
+                    );
                   }
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Sign in failure: $e')),
+                  );
+                }
               },
               child: Text(
                 'Sign In',
                 style: TextStyle(color: buttonTextColor),
               ),
             ),
-            const SizedBox(height: 10), // Add spacing
+            const SizedBox(height: 10),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween, // Align both ends
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 GestureDetector(
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),
+                      MaterialPageRoute(
+                          builder: (context) => ForgotPasswordScreen()),
                     );
                   },
                   child: Text(
                     'Forgot Password?',
                     style: TextStyle(
-                      color: buttonTextColor, 
+                      color: buttonTextColor,
                     ),
                   ),
                 ),
@@ -136,5 +129,3 @@ class SignInScreen extends StatelessWidget {
     );
   }
 }
-
-

@@ -1,15 +1,11 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 
 class MapAddressPicker extends StatefulWidget {
   final LatLng initialPosition;
 
-  const MapAddressPicker({Key? key, required this.initialPosition})
-      : super(key: key);
+  const MapAddressPicker({super.key, required this.initialPosition});
 
   @override
   State<MapAddressPicker> createState() => _MapAddressPickerState();
@@ -27,38 +23,9 @@ class _MapAddressPickerState extends State<MapAddressPicker> {
     _fetchAddressFromCoordinates(_selectedPosition);
   }
 
-Future<void> _fetchAddressFromCoordinates(LatLng position) async {
-  if (kIsWeb) {
-    // Use Google Geocoding API for web
-    final apiKey = 'YOUR_GOOGLE_API_KEY';
-    final url =
-        'https://maps.googleapis.com/maps/api/geocode/json?latlng=${position.latitude},${position.longitude}&key=$apiKey';
-
+  Future<void> _fetchAddressFromCoordinates(LatLng position) async {
     try {
-      final response = await http.get(Uri.parse(url));
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data['results'] != null && data['results'].isNotEmpty) {
-          setState(() {
-            _selectedAddress = data['results'][0]['formatted_address'];
-          });
-        } else {
-          setState(() {
-            _selectedAddress = "No address found";
-          });
-        }
-      } else {
-        setState(() {
-          _selectedAddress = "Unable to fetch address";
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _selectedAddress = "Error: $e";
-      });
-    }
-  } else {
-    try {
+      // Reverse geocoding to fetch the address
       List<Placemark> placemarks = await placemarkFromCoordinates(
         position.latitude,
         position.longitude,
@@ -76,7 +43,6 @@ Future<void> _fetchAddressFromCoordinates(LatLng position) async {
       });
     }
   }
-}
 
   @override
   Widget build(BuildContext context) {

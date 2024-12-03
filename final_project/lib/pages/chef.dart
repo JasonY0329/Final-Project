@@ -1,9 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:final_project/pages/chefReservationConfirmPage.dart';
+import 'package:intl/intl.dart'; 
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class ChefPage extends StatelessWidget {
+class ChefPage extends StatefulWidget {
   final Map<String, dynamic> chef;
 
   ChefPage({super.key, required this.chef});
+
+  @override
+  _ChefPageState createState() => _ChefPageState();
+}
+
+class _ChefPageState extends State<ChefPage> {
+  DateTime? _selectedDate;
+  TimeOfDay? _selectedTime;
+
 
   final Map<String, Map<String, Map<String, dynamic>>> chefDishes = {
     'British': {
@@ -268,14 +280,14 @@ class ChefPage extends StatelessWidget {
     },
   };
 
-  @override
+   @override
   Widget build(BuildContext context) {
-    final chefCuisine = chef['cuisine'];
+    final chefCuisine = widget.chef['cuisine'];
     final packages = chefDishes[chefCuisine];
-
+    
     return Scaffold(
       appBar: AppBar(
-        title: Text(chef['name']),
+        title: Text(widget.chef['name']),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -286,7 +298,9 @@ class ChefPage extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () => _selectDateTime(context),
-              child: const Text('Select Date and Time'),
+              child: Text(_selectedDate != null && _selectedTime != null
+                  ? 'Selected: ${DateFormat('yyyy-MM-dd').format(_selectedDate!)} at ${_selectedTime!.format(context)}'
+                  : 'Select Date and Time'),
             ),
             const SizedBox(height: 20),
             const Text(
@@ -326,7 +340,7 @@ class ChefPage extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(100),
             child: Image.asset(
-              chef['photo'],
+              widget.chef['photo'],
               height: 150,
               width: 150,
               fit: BoxFit.cover,
@@ -337,57 +351,81 @@ class ChefPage extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            chef['name'],
+            widget.chef['name'],
             style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 5),
           Text(
-            chef['specialty'],
+            widget.chef['specialty'],
             style: const TextStyle(fontSize: 18, color: Colors.grey),
           ),
           const SizedBox(height: 10),
           Text(
-            'Rating: ${chef['rating']} ⭐',
+            'Rating: ${widget.chef['rating']} ⭐',
             style: const TextStyle(fontSize: 16),
           ),
         ],
       ),
     );
   }
+  void _saveOrderToFirebase({
+    required String chefName,
+    required String chefPhoto,
+    required String reservationDate,
+    required String reservationTime,
+    required Map<String, List<String>> selectedDishes,
+    required double totalPrice,
+  }) async {
+    try {
+      CollectionReference orders = FirebaseFirestore.instance.collection('orders');
 
-  void _selectDateTime(BuildContext context) async {
-    DateTime? selectedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
-    );
+      await orders.add({
+        'chefName': chefName,
+        'chefPhoto': chefPhoto,
+        'reservationDate': Timestamp.fromDate(reservationDate as DateTime),
+        'reservationTime': reservationTime,
+        'selectedDishes': selectedDishes,
+        'totalPrice': totalPrice,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
 
-    if (selectedDate == null) return;
-
-    TimeOfDay? selectedTime = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-    );
-
-    if (selectedTime == null) return;
-
-    final DateTime selectedDateTime = DateTime(
-      selectedDate.year,
-      selectedDate.month,
-      selectedDate.day,
-      selectedTime.hour,
-      selectedTime.minute,
-    );
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Order scheduled for ${selectedDateTime.toLocal()}',
-        ),
-      ),
-    );
+      print('Order saved to Firebase');
+    } catch (e) {
+      print('Failed to save order: $e');
+    }
   }
+  void _selectDateTime(BuildContext context) async {
+  DateTime? selectedDate = await showDatePicker(
+    context: context,
+    initialDate: DateTime.now(),
+    firstDate: DateTime.now(),
+    lastDate: DateTime.now().add(const Duration(days: 365)),
+  );
+
+  if (selectedDate == null) return;
+
+  TimeOfDay? selectedTime = await showTimePicker(
+    context: context,
+    initialTime: TimeOfDay.now(),
+  );
+
+  if (selectedTime == null) return;
+
+  setState(() {
+    _selectedDate = selectedDate;
+    _selectedTime = selectedTime;
+  });
+
+  final formattedDate = DateFormat('yyyy-MM-dd').format(_selectedDate!); // Format the date
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(
+        'Selected Date: $formattedDate, Time: ${_selectedTime!.format(context)}',
+      ),
+    ),
+  );
+} 
 
   void _showPackageDialog(BuildContext context, String packageKey, Map<String, dynamic> packages) {
     final package = packages[packageKey];
@@ -447,11 +485,37 @@ class ChefPage extends StatelessWidget {
                 ),
                 ElevatedButton(
                   onPressed: () {
+                    if (_selectedDate == null || _selectedTime == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Please select a date and time first.'),
+                        ),
+                      );
+                      return;
+                    }
+
+                    final formattedDate = DateFormat('yyyy-MM-dd').format(_selectedDate!);
+
+                    _saveOrderToFirebase(
+                      chefName: widget.chef['name'],
+                      chefPhoto: widget.chef['photo'],
+                      reservationDate: formattedDate,
+                      reservationTime: _selectedTime!.format(context),
+                      selectedDishes: selectedDishes,
+                      totalPrice: price,
+                    );
+
                     Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'You selected dishes for \$${price.toStringAsFixed(2)}.',
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ChefReservationConfirmPage(
+                          chefName: widget.chef['name'],
+                          chefPhoto: widget.chef['photo'],
+                          selectedDishes: selectedDishes,
+                          totalPrice: price,
+                          reservationDate: formattedDate,
+                          reservationTime: _selectedTime!.format(context),
                         ),
                       ),
                     );
@@ -465,4 +529,5 @@ class ChefPage extends StatelessWidget {
       },
     );
   }
+
 }

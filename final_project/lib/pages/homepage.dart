@@ -1,13 +1,19 @@
 import 'package:final_project/pages/MapAddressPicker.dart';
 import 'package:final_project/pages/chef.dart';
 import 'package:final_project/pages/search.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+import 'reservation_tabs.dart';
+import 'user_profile_page.dart';
 
+class HomePage extends StatefulWidget {
+  
+  const HomePage({super.key, required this.userData});
+  final Map<String, dynamic> userData;
+  
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -17,6 +23,8 @@ class _HomePageState extends State<HomePage> {
   String _currentAddress = "123 Main St, SF";
   String _searchQuery = '';
   final String _selectedCuisine = 'All';
+  
+
 
   // Recommended Chefs List
   final List<Map<String, dynamic>> recommendedChefs = [
@@ -108,19 +116,53 @@ class _HomePageState extends State<HomePage> {
 
   // Handle Bottom Navigation Bar Taps
   void _onItemTapped(int index) {
-    if (index == 1) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => SearchPage(recommendedChefs: recommendedChefs),
-        ),
-      );
-    } else {
-      setState(() {
-        _selectedIndex = index;
-      });
-    }
+    
+  if (index == 1) {
+    // Navigate to SearchPage
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SearchPage(recommendedChefs: recommendedChefs),
+      ),
+    );
+  } else if (index == 2) {
+  final userId = FirebaseAuth.instance.currentUser?.uid;
+
+  if (userId != null) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ReservationTabs(userId: userId),
+      ),
+    );
+  } else {
+    // Handle the null userId case
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('User is not signed in.')),
+    );
   }
+}
+ else if (index == 3) {
+    // Navigate to UserProfilePage
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => UserProfilePage(userData: widget.userData),
+      ),
+    ).then((updatedData) {
+      if (updatedData != null) {
+        setState(() {
+          widget.userData.addAll(updatedData); // Update user data after changes
+        });
+      }
+});
+  } else {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+}
+
 
   // Filter Chefs Based on Query and Cuisine
   List<Map<String, dynamic>> getFilteredChefs() {
@@ -167,7 +209,23 @@ class _HomePageState extends State<HomePage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.shopping_cart),
-            onPressed: () {},
+            onPressed: () {
+              final userId = FirebaseAuth.instance.currentUser?.uid;
+
+              if (userId != null) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ReservationTabs(userId: userId),
+                  ),
+                );
+              } else {
+                // Handle the case where the user is not signed in
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('User is not signed in.')),
+                );
+              }
+            },
           ),
         ],
       ),
