@@ -48,16 +48,43 @@ class SignInScreen extends StatelessWidget {
                 }
                 // Sign in logic
                  try {
-                    await FirebaseAuth.instance.signInWithEmailAndPassword(
-                      email: emailController.text.trim(),
-                      password: passwordController.text.trim(),
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Sign in successfully')));
+                    final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+                        email: emailController.text.trim(),
+                        password: passwordController.text.trim(),
+                      );
+                    final user = userCredential.user;
+                    if (user != null) {
+                      // Check if the email is verified
+                      if (user.emailVerified) {
+                        // Email is verified, allow login
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Sign in successfully')),
+                        );
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(builder: (context) => const HomePage()),
                         );
+                      } else {
+                        // Email not verified, display warning
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Sign in failed: Email not verified. Please check your inbox and verify your email.',
+                            ),
+                          ),
+                        );
+                      }
+                    }
+                    // await FirebaseAuth.instance.signInWithEmailAndPassword(
+                    //   email: emailController.text.trim(),
+                    //   password: passwordController.text.trim(),
+                    // );
+                    // ScaffoldMessenger.of(context).showSnackBar(
+                    //     const SnackBar(content: Text('Sign in successfully')));
+                    //     Navigator.pushReplacement(
+                    //       context,
+                    //       MaterialPageRoute(builder: (context) => const HomePage()),
+                    //     );
 
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
