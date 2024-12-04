@@ -38,7 +38,6 @@ dependencies:
   google_maps_flutter:
   geolocator:
   google_place:
-  flutter_google_places:
   geocoding:
   intl: ^0.18.0
   google_maps_flutter_web:
