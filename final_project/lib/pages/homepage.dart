@@ -22,7 +22,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
-  String _currentAddress = "Loading address...";
+  String _currentAddress = "Set your address here";
   String _searchQuery = '';
   final String _selectedCuisine = 'All';
 
