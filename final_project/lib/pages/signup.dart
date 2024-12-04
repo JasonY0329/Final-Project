@@ -112,7 +112,7 @@ class SignUpScreen extends StatelessWidget {
                     bool isVerified = false;
                     while (!isVerified) {
                       await Future.delayed(const Duration(seconds: 3));
-                      await user.reload(); // Reload user information
+                      // await user.reload(); // Reload user information
                       isVerified = user.emailVerified; // Check if verified
                     }
 
