@@ -1,7 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_project/pages/reservation_tabs.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ChefReservationConfirmPage extends StatefulWidget {
   final String chefName;
@@ -263,9 +263,12 @@ class _ChefReservationConfirmPageState
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              _cardDetails,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            Expanded(
+              child: Text(
+                _cardDetails,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
             const Icon(Icons.edit, color: Colors.teal),
           ],
@@ -287,9 +290,12 @@ class _ChefReservationConfirmPageState
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              _userAddress,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            Expanded(
+              child: Text(
+                _userAddress,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
             const Icon(Icons.edit, color: Colors.teal),
           ],
