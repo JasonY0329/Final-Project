@@ -6,7 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class ChefPage extends StatefulWidget {
   final Map<String, dynamic> chef;
 
-  ChefPage({super.key, required this.chef});
+  const ChefPage({super.key, required this.chef});
 
   @override
   _ChefPageState createState() => _ChefPageState();

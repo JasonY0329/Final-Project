@@ -376,17 +376,17 @@ void _editAddress(BuildContext context) async {
           initialPosition = LatLng(locations.first.latitude, locations.first.longitude);
         } else {
           // Default position if no address is found
-          initialPosition = LatLng(37.7749, -122.4194); // San Francisco coordinates
+          initialPosition = const LatLng(37.7749, -122.4194); // San Francisco coordinates
         }
       } else {
-        initialPosition = LatLng(37.7749, -122.4194);
+        initialPosition = const LatLng(37.7749, -122.4194);
       }
     } else {
-      initialPosition = LatLng(37.7749, -122.4194);
+      initialPosition = const LatLng(37.7749, -122.4194);
     }
   } catch (e) {
     // Fallback to default position in case of an error
-    initialPosition = LatLng(37.7749, -122.4194);
+    initialPosition = const LatLng(37.7749, -122.4194);
   }
 
   // Open the MapAddressPicker with the initial position

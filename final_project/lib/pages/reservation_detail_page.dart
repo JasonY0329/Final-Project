@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class ReservationDetailPage extends StatelessWidget {
   final Map<String, dynamic> reservation;
 
-  const ReservationDetailPage({required this.reservation});
+  const ReservationDetailPage({super.key, required this.reservation});
 
   @override
   Widget build(BuildContext context) {

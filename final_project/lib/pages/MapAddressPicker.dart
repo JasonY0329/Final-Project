@@ -29,7 +29,7 @@ class _MapAddressPickerState extends State<MapAddressPicker> {
   Future<void> _fetchAddressFromCoordinates(LatLng position) async {
   if (kIsWeb) {
     // Use Google Geocoding API for web
-    final apiKey = 'AIzaSyAs3Z3mwN4nh87clB017iK1AWo-2CCD2DU';
+    const apiKey = 'AIzaSyAs3Z3mwN4nh87clB017iK1AWo-2CCD2DU';
     final url =
         'https://maps.googleapis.com/maps/api/geocode/json?latlng=${position.latitude},${position.longitude}&key=$apiKey';
     try {

@@ -7,7 +7,7 @@ import 'signin.dart';
 class UserProfilePage extends StatefulWidget {
   final Map<String, dynamic> userData;
 
-  UserProfilePage({required this.userData});
+  const UserProfilePage({super.key, required this.userData});
 
   @override
   _UserProfilePageState createState() => _UserProfilePageState();
@@ -56,7 +56,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () {
@@ -88,7 +88,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 _updateUserInfo(field, controller.text);
                 Navigator.pop(context);
               },
-              child: Text('Save'),
+              child: const Text('Save'),
             ),
           ],
         );
@@ -168,7 +168,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(
+            const Center(
               child: CircleAvatar(
                 radius: 50,
                 backgroundImage: AssetImage('assets/images/user.jpg'),
@@ -176,9 +176,9 @@ class _UserProfilePageState extends State<UserProfilePage> {
             ),
             const SizedBox(height: 16),
             ListTile(
-              title: Text('Name'),
+              title: const Text('Name'),
               subtitle: Text(_userName),
-              trailing: Icon(Icons.edit),
+              trailing: const Icon(Icons.edit),
               onTap: () => _editField(context, 'Name', 'name', _userName),
             ),
             ListTile(
@@ -189,31 +189,31 @@ class _UserProfilePageState extends State<UserProfilePage> {
             ),
 
             ListTile(
-              title: Text('Phone'),
+              title: const Text('Phone'),
               subtitle: Text(_userPhone),
-              trailing: Icon(Icons.edit),
+              trailing: const Icon(Icons.edit),
               onTap: () => _editField(context, 'Phone', 'phone', _userPhone),
             ),
             ListTile(
-              title: Text('Email'),
+              title: const Text('Email'),
               subtitle: Text(_userEmail),
-              trailing: Icon(Icons.edit),
+              trailing: const Icon(Icons.edit),
               onTap: () => _editField(context, 'Email', 'email', _userEmail),
             ),
             ListTile(
-              title: Text('Address'),
+              title: const Text('Address'),
               subtitle: Text(_userAddress),
               // trailing: Icon(Icons.edit),
               // onTap: () => _editField(context, 'Address', 'address', _userAddress),
             ),
-            Spacer(), // Pushes the button to the bottom
+            const Spacer(), // Pushes the button to the bottom
             Center(
               child: ElevatedButton(
                 onPressed: () => _logOut(context),
-                child: Text('Log Out'),
                 style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                 ),
+                child: Text('Log Out'),
               ),
             ),
 

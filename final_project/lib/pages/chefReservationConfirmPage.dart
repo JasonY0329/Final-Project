@@ -12,14 +12,14 @@ class ChefReservationConfirmPage extends StatefulWidget {
   final String reservationTime;
 
   const ChefReservationConfirmPage({
-    Key? key,
+    super.key,
     required this.chefName,
     required this.chefPhoto,
     required this.selectedDishes,
     required this.totalPrice,
     required this.reservationDate,
     required this.reservationTime,
-  }) : super(key: key);
+  });
 
   @override
   _ChefReservationConfirmPageState createState() =>
@@ -225,7 +225,7 @@ class _ChefReservationConfirmPageState
               category,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            ...dishes.map((dish) => Text(' - $dish')).toList(),
+            ...dishes.map((dish) => Text(' - $dish')),
             const SizedBox(height: 10),
           ],
         ),

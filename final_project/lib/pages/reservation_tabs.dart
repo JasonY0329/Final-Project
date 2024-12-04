@@ -25,7 +25,7 @@ class _ReservationTabsState extends State<ReservationTabs> {
     
     FirebaseFirestore.instance.collection('orders').get().then((snapshot) {
       for (var doc in snapshot.docs) {
-        final data = doc.data() as Map<String, dynamic>;
+        final data = doc.data();
         if (data['userId'] is! String) {
           FirebaseFirestore.instance.collection('orders').doc(doc.id).update({
             'userId': data['userId'].toString(),
