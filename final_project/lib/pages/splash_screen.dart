@@ -29,11 +29,16 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
     // Start the animation
     _controller.forward();
+    _controller.addStatusListener((status){
+      if (status == AnimationStatus.completed){
+        _navigateToSigninPage();
+      }
+    });
 
     // Navigate to HomePage after animation ends
-    Future.delayed(const Duration(seconds: 4), () {
-      _navigateToSigninPage();
-    });
+    // Future.delayed(const Duration(seconds: 10), () {
+    //   _navigateToSigninPage();
+    // });
   }
 
   void _navigateToSigninPage() {
