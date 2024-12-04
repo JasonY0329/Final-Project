@@ -5,7 +5,6 @@ import 'password.dart';
 import '../validators.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'user_profile_page.dart'; // Import UserProfilePage
 
 class SignInScreen extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
@@ -50,16 +49,39 @@ class SignInScreen extends StatelessWidget {
 
                 try {
                   // Sign in the user
-                  final userCredential = await FirebaseAuth.instance
-                      .signInWithEmailAndPassword(
+                  final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
                     email: email,
                     password: password,
                   );
 
+                  final user = userCredential.user;
+
+                  // Ensure user is not null
+                  if (user == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Sign-in failed. Please try again.')),
+                    );
+                    return;
+                  }
+
+                  // Check if the user's email is verified
+                  if (!user.emailVerified) {
+                    await user.sendEmailVerification(); // Send a verification email
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Email not verified. A verification email has been sent. Please verify and try again.',
+                        ),
+                      ),
+                    );
+                    await FirebaseAuth.instance.signOut(); // Sign out the user
+                    return;
+                  }
+
                   // Fetch user information from Firestore
                   final userDoc = await FirebaseFirestore.instance
                       .collection('users')
-                      .doc(userCredential.user!.uid)
+                      .doc(user.uid) // Access the uid safely
                       .get();
 
                   if (userDoc.exists && userDoc.data() != null) {
@@ -97,7 +119,8 @@ class SignInScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => ForgotPasswordScreen()),
+                        builder: (context) => ForgotPasswordScreen(),
+                      ),
                     );
                   },
                   child: Text(
