@@ -31,13 +31,13 @@ class ReservationDetailPage extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(100),
                   child: chefImage.isNotEmpty
-                      ? Image.network(
+                      ? Image.asset(
                           chefImage,
                           width: 150,
                           height: 150,
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
-                            return const Icon(Icons.person, size: 150, color: Colors.grey);
+                            return const Icon(Icons.error, size: 150, color: Colors.grey);
                           },
                         )
                       : const Icon(Icons.person, size: 150, color: Colors.grey),

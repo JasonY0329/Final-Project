@@ -170,7 +170,7 @@ class _HomePageState extends State<HomePage> {
           onTap: () => _editAddress(context),
           child: Row(
             children: [
-              const Icon(Icons.location_on, color: Colors.white, size: 18),
+              const Icon(Icons.location_on, color: Colors.blue, size: 18),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
