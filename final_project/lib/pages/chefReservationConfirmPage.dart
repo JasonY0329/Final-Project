@@ -52,6 +52,15 @@ class _ChefReservationConfirmPageState
 
   Future<void> _saveOrderToFirestore(BuildContext context) async {
     try {
+      if (_userAddress.isEmpty || _userAddress == 'Please update your address') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please update your address before confirming the order.'),
+        ),
+      );
+      return;
+    }
+
       final userId = FirebaseAuth.instance.currentUser?.uid;
 
       if (userId == null) {

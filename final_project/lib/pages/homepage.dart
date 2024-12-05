@@ -24,11 +24,14 @@ class _HomePageState extends State<HomePage> {
   String _currentAddress = "Set your address here";
   String _searchQuery = '';
   final String _selectedCuisine = 'All';
+  bool _isLoadingChefs = true;
+  List<Map<String, dynamic>> recommendedChefs = [];
 
   @override
   void initState() {
     super.initState();
     _fetchUserAddress();
+    _fetchRecommendedChefs();
   }
 
   Future<void> _fetchUserAddress() async {
@@ -60,96 +63,32 @@ class _HomePageState extends State<HomePage> {
       });
     }
   }
-  
 
+  Future<void> _fetchRecommendedChefs() async {
+    try {
+      final querySnapshot = await FirebaseFirestore.instance.collection('chefs').get();
+      final List<Map<String, dynamic>> chefs = querySnapshot.docs.map((doc) {
+        final data = doc.data();
+        return {
+          'name': data['name'] ?? 'Unknown',
+          'rating': data['rating']?.toDouble() ?? 0.0,
+          'specialty': data['specialty'] ?? 'Unknown',
+          'cuisine': data['cuisine'] ?? 'Unknown',
+          'photo': data['photo'] ?? '',
+        };
+      }).toList();
 
-  // Recommended Chefs List
-  final List<Map<String, dynamic>> recommendedChefs = [
-    {
-      'name': 'Gordon Ramsay',
-      'rating': 4.9,
-      'specialty': 'British Cuisine',
-      'cuisine': 'British',
-      'photo': 'assets/images/Gordon Ramsay.jpg',
-    },
-    {
-      'name': 'Nigella Lawson',
-      'rating': 4.8,
-      'specialty': 'Desserts & Baking',
-      'cuisine': 'French',
-      'photo': 'assets/images/Nigella Lawson.jpg',
-    },
-    {
-      'name': 'Massimo Bottura',
-      'rating': 4.7,
-      'specialty': 'Italian Cuisine',
-      'cuisine': 'Italian',
-      'photo': 'assets/images/Massimo Bottura.jpg',
-    },
-    {
-      'name': 'Anita Lo',
-      'rating': 4.6,
-      'specialty': 'Chinese Cuisine',
-      'cuisine': 'Chinese',
-      'photo': 'assets/images/Anita Lo.jpg',
-    },
-    {
-      'name': 'Vikas Khanna',
-      'rating': 4.8,
-      'specialty': 'Indian Cuisine',
-      'cuisine': 'Indian',
-      'photo': 'assets/images/Vikas Khanna.jpg',
-    },
-    {
-      'name': 'Enrique Olvera',
-      'rating': 4.7,
-      'specialty': 'Mexican Cuisine',
-      'cuisine': 'Mexican',
-      'photo': 'assets/images/Enrique Olvera.jpg',
-    },
-    {
-      'name': 'Alain Ducasse',
-      'rating': 4.9,
-      'specialty': 'French Haute Cuisine',
-      'cuisine': 'French',
-      'photo': 'assets/images/Alain Ducasse.jpg',
-    },
-    {
-      'name': 'Nobu Matsuhisa',
-      'rating': 4.8,
-      'specialty': 'Japanese Fusion',
-      'cuisine': 'Japanese',
-      'photo': 'assets/images/Nobu Matsuhisa.jpg',
-    },
-    {
-      'name': 'José Andrés',
-      'rating': 4.7,
-      'specialty': 'Spanish Tapas',
-      'cuisine': 'Spanish',
-      'photo': 'assets/images/Jose Andres.jpg',
-    },
-    {
-      'name': 'Ming Tsai',
-      'rating': 4.6,
-      'specialty': 'Asian Fusion',
-      'cuisine': 'Chinese',
-      'photo': 'assets/images/Ming Tsai.jpg',
-    },
-    {
-      'name': 'Rick Bayless',
-      'rating': 4.8,
-      'specialty': 'Modern Mexican Cuisine',
-      'cuisine': 'Mexican',
-      'photo': 'assets/images/Rick Bayless.jpg',
-    },
-    {
-      'name': 'Alice Waters',
-      'rating': 4.9,
-      'specialty': 'Farm-to-Table Cuisine',
-      'cuisine': 'American',
-      'photo': 'assets/images/Alice Waters.jpg',
-    },
-  ];
+      setState(() {
+        recommendedChefs = chefs;
+        _isLoadingChefs = false; // Set loading to false after fetching
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingChefs = false; // Set loading to false even on error
+      });
+      print('Error fetching chefs: $e');
+    }
+  }
 
   // Handle Bottom Navigation Bar Taps
   void _onItemTapped(int index) {

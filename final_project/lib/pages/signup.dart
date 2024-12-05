@@ -172,6 +172,7 @@ class SignUpScreen extends StatelessWidget {
                         'email': email,
                         'name': fullName,
                         'phone': phoneNumber,
+                        'address': 'Please update your address',
                         'createdAt': FieldValue.serverTimestamp(),
                       });
 
